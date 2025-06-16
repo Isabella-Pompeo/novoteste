@@ -2,45 +2,78 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Mapa da Feira (PDF)</title>
+  <title>Mapa com Zoom</title>
   <style>
-    #pdf-canvas {
-      width: 100%;
-      border: 1px solid #ccc;
+    #fairMapCanvas {
+      width: 800px;
+      height: 600px;
+      border: 1px solid #000;
+      display: block;
+      margin: 20px auto;
+      cursor: zoom-in;
     }
   </style>
 </head>
 <body>
 
-<h2>Mapa da Feira</h2>
-<canvas id="pdf-canvas"></canvas>
+<canvas id="fairMapCanvas"></canvas>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-  const url = 'img/mapa-planta.pdf'; // caminho do seu arquivo PDF
-  const canvas = document.getElementById('pdf-canvas');
+  const canvas = document.getElementById('fairMapCanvas');
   const ctx = canvas.getContext('2d');
 
-  const loadingTask = pdfjsLib.getDocument(url);
-  loadingTask.promise.then(pdf => {
-    // Renderiza a primeira página do PDF
-    pdf.getPage(1).then(page => {
-      const viewport = page.getViewport({ scale: 1.5 });
+  const dpr = window.devicePixelRatio || 1;
+  const cssWidth = 800;
+  const cssHeight = 600;
 
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
+  canvas.width = cssWidth * dpr;
+  canvas.height = cssHeight * dpr;
+  canvas.style.width = cssWidth + 'px';
+  canvas.style.height = cssHeight + 'px';
+  ctx.scale(dpr, dpr);
 
-      const renderContext = {
-        canvasContext: ctx,
-        viewport: viewport
-      };
-      page.render(renderContext);
-    });
-  }).catch(err => {
-    console.error("Erro ao carregar PDF:", err);
-    ctx.font = "16px Arial";
-    ctx.fillStyle = "red";
-    ctx.fillText("Erro ao carregar o mapa PDF.", 10, 50);
+  const img = new Image();
+  img.src = 'assets/mapa-planta.png';
+
+  // Estado de zoom
+  let zoom = 1;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  img.onload = () => {
+    draw();
+  };
+
+  function draw() {
+    ctx.clearRect(0, 0, cssWidth, cssHeight);
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
+    ctx.scale(zoom, zoom);
+    ctx.drawImage(img, 0, 0, cssWidth, cssHeight);
+    ctx.restore();
+  }
+
+  canvas.addEventListener('click', e => {
+    const rect = canvas.getBoundingClientRect();
+    const clickX = (e.clientX - rect.left) / (zoom);
+    const clickY = (e.clientY - rect.top) / (zoom);
+
+    zoom *= 1.5;
+    offsetX = (offsetX - clickX * 0.5);
+    offsetY = (offsetY - clickY * 0.5);
+    draw();
+  });
+
+  canvas.addEventListener('contextmenu', e => {
+    e.preventDefault(); // bloqueia o menu do botão direito
+    const rect = canvas.getBoundingClientRect();
+    const clickX = (e.clientX - rect.left) / (zoom);
+    const clickY = (e.clientY - rect.top) / (zoom);
+
+    zoom /= 1.5;
+    offsetX = (offsetX + clickX * 0.5);
+    offsetY = (offsetY + clickY * 0.5);
+    draw();
   });
 </script>
 

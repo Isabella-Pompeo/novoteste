@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Teste Canvas com Imagem</title>
+  <style>
+    #fairMapCanvas {
+      width: 600px;
+      height: 400px;
+      border: 1px solid #000;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="fairMapCanvas"></canvas>
+
+<script>
+  const canvas = document.getElementById('fairMapCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+
+  const img = new Image();
+  img.src = 'assets/mapa-planta.png'; // Verifique esse caminho
+  img.onload = () => {
+    ctx.drawImage(img, 0, 0, canvas.clientWidth, canvas.clientHeight);
+  };
+  img.onerror = () => {
+    console.error("Erro ao carregar imagem.");
+    ctx.fillStyle = '#ccc';
+    ctx.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+  };
+</script>
+
+</body>
+</html>

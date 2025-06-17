@@ -33,7 +33,7 @@
   ctx.scale(dpr, dpr);
 
   const img = new Image();
-  img.src = 'assets/mapa-planta.png';
+  img.src = 'img/mapa-planta.png';
 
   // Estado de zoom
   let zoom = 1;
@@ -75,6 +75,10 @@
     offsetY = (offsetY + clickY * 0.5);
     draw();
   });
+
+  img.onerror = () => {
+  console.error("Erro ao carregar imagem: ", img.src);
+};
 </script>
 
 </body>
